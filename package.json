@@ -1,0 +1,14 @@
+{
+  "name": "evenbetter-sampleplugin",
+  "version": "1.0.0",
+  "description": "A sample plugin with EvenBetterAPI",
+  "main": "index.js",
+  "scripts": {
+    "build": "bun build src/index.ts --outdir final --minify"
+  },
+  "author": "bebiks <bebiks@cvssadvisor.com>",
+  "license": "CC0-1.0",
+  "dependencies": {
+    "@bebiks/evenbetter-api": "^1.0.0"
+  }
+}
