@@ -162,4 +162,4 @@ EvenBetterAPI.promptCommands.createPromptCommand("Example Prompt Command", "Toas
     });
 });
 
-EvenBetterAPI.hotReloading(); // Enable hot reloading
+//EvenBetterAPI.hotReloading(); // Enable hot reloading
