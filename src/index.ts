@@ -146,4 +146,20 @@ Caido.navigation.addPage("/hello", {
 // Add an "Example" item to the sidebar
 Caido.sidebar.registerItem("Example", "/example");
 
+Caido.commands.register("example:show-toast", {
+  name: "Example Prompt Command",
+  group: "Example",
+  run: () => {},
+});
+
+Caido.commandPalette.register("example:show-toast");
+EvenBetterAPI.promptCommands.createPromptCommand("Example Prompt Command", "Toast message", (value) => {
+    EvenBetterAPI.toast.showToast({
+        message: value,
+        type: "info",
+        duration: 3000,
+        position: "bottom",
+    });
+});
+
 EvenBetterAPI.hotReloading(); // Enable hot reloading
