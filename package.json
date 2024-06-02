@@ -1,14 +1,26 @@
 {
   "name": "evenbetter-sampleplugin",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A sample plugin with EvenBetterAPI",
-  "main": "index.js",
-  "scripts": {
-    "build": "bun build src/index.ts --outdir final --minify"
-  },
   "author": "bebiks <bebiks@cvssadvisor.com>",
   "license": "CC0-1.0",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "vite build"
+  },
   "dependencies": {
-    "@bebiks/evenbetter-api": "^1.0.0"
+    "@bebiks/evenbetter-api": "1.3.0",
+    "@caido/sdk-frontend": "0.37.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.12",
+    "path": "^0.12.7",
+    "typescript": "5.4.3",
+    "vite": "5.2.7",
+    "vite-plugin-css": "^1.0.4",
+    "vite-plugin-node-polyfills": "^0.22.0",
+    "vite-plugin-static-copy": "1.0.3",
+    "vite-plugin-zip-pack": "1.2.3"
   }
 }

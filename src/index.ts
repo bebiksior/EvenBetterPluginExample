@@ -1,165 +1,181 @@
-import EvenBetterAPI from "@bebiks/evenbetter-api";
+import { EvenBetterAPI } from "@bebiks/evenbetter-api";
 import { Caido } from "@caido/sdk-frontend";
+import "./index.css";
+import {
+  InputType,
+  SettingsPageOptions,
+} from "@bebiks/evenbetter-api/src/templates/settingsPage/types";
 
-const customCSS = `
-.c-content[data-page="#/hello"],
-.c-content[data-page="#/example"] {
-  overflow: auto;
-}
-`;
-
-// Function to generate a page with navigation bar and content
-function generatePage(): HTMLElement {
-  // This will add the custom CSS to the page, id is used to prevent duplicate CSS
-  EvenBetterAPI.loadCSS({
-    id: "custom-css",
-    cssText: customCSS,
+export const init = (caido: Caido) => {
+  // Initialize EvenBetterAPI
+  const evenBetterAPI = new EvenBetterAPI(caido, {
+    manifestID: "evenbetter-sampleplugin",
+    name: "EvenBetter: Sample Plugin",
   });
 
-  const randomTable = generateRandomTable();
-  const body = document.createElement("div");
-  body.style.gap = "0.5em";
-  body.style.height = "100%";
-  body.style.display = "flex";
-  body.style.flexDirection = "column";
-
-  // Create navigation bar
-  const navigationBar = EvenBetterAPI.components.createNavigationBar({
-    title: "Example",
-    items: [
-      { title: "Example", url: "#/example", icon: "fa-home" },
-      { title: "Hello", url: "#/hello", icon: "fa-cog" },
-    ],
-    customButtons: [
-      Caido.ui.button({
-        label: "Click me",
-        variant: "primary",
-      }),
-    ],
-  });
-
-  body.appendChild(navigationBar);
-
-  const content = document.createElement("div");
-  content.style.display = "flex";
-  content.style.flexDirection = "column";
-  content.style.backgroundColor = "var(--c-bg-subtle)";
-  content.style.height = "100%";
-
-  const topRow = document.createElement("div");
-  topRow.style.display = "flex";
-  topRow.style.alignItems = "center";
-  topRow.style.gap = "0.5em";
-  topRow.style.padding = "1em";
-
-  const clickMeButton = Caido.ui.button({
-    label: "Click me",
-    variant: "primary",
-    size: "medium",
-  });
-
-  clickMeButton.addEventListener("click", () => {
-    EvenBetterAPI.toast.showToast({
-      message: "Button clicked!",
-      type: "success",
-      duration: 2000,
-      position: "bottom",
-    });
-  });
-
-  topRow.appendChild(clickMeButton);
-
-  const searchInput = EvenBetterAPI.components.createTextInput(
-    "15em",
-    "Search..."
-  );
-  searchInput.addEventListener("input", (event) => {
-    const value = (event.target as HTMLInputElement).value;
-    randomTable.filterRows(value);
-  });
-  topRow.appendChild(searchInput);
-
-  content.appendChild(topRow);
-  content.appendChild(randomTable.getHTMLElement());
-  body.appendChild(content);
-
-  return body;
-}
-
-const values = [
-  "Caido",
-  "EvenBetterAPI",
-  "Caido > Burp",
-  "Hello, Caido!",
-  "Hello, World!",
-  "Comic Sans is the best font",
-  "This is a random sentence",
-];
-const generateRandomRow = () => {
-  const row = new Map<string, string>();
-  row.set("Name", values[Math.floor(Math.random() * values.length)]);
-  row.set("Value", "Value " + Math.floor(Math.random() * 100));
-  row.set("Version", "v" + Math.floor(Math.random() * 10) + ".0");
-  row.set("Date", new Date().toLocaleDateString());
-  return row;
+  customPromptCommand(caido, evenBetterAPI);
+  examplePage(caido, evenBetterAPI);
+  tablePage(caido, evenBetterAPI);
 };
 
-// Generate a table with 20 randomized rows
-const generateRandomTable = () => {
-  const tableData = Array.from({ length: 20 }, () => generateRandomRow());
-
-  const randomTable = EvenBetterAPI.components.createTable({
-    tableHeight: "40em",
-    columns: [
-      { name: "Name", width: "15em" },
-      { name: "Value", width: "15em" },
-      { name: "Version", width: "10em" },
-      { name: "Date", width: "10em" },
-    ],
+const customPromptCommand = (caido: Caido, evenBetterAPI: EvenBetterAPI) => {
+  // Register and add to command palette command "Hello World"
+  caido.commands.register("eb-sample:hello-world", {
+    name: "Hello World",
+    group: "EvenBetter: Sample Plugin",
+    run: (context) => {},
   });
+  caido.commandPalette.register("eb-sample:hello-world");
 
-  tableData.forEach((row) => {
-    const name = row.get("Name") || "",
-      value = row.get("Value") || "",
-      version = row.get("Version") || "",
-      date = row.get("Date") || "";
-
-    randomTable.addRow([
-      { columnName: "Name", value: name },
-      { columnName: "Value", value: value },
-      { columnName: "Version", value: version },
-      { columnName: "Date", value: date },
-    ]);
-  });
-  return randomTable;
-};
-
-// Register /example and /hello so we can navigate to them
-Caido.navigation.addPage("/example", {
-  body: generatePage(),
-});
-
-Caido.navigation.addPage("/hello", {
-  body: generatePage(),
-});
-
-// Add an "Example" item to the sidebar
-Caido.sidebar.registerItem("Example", "/example");
-
-Caido.commands.register("example:show-toast", {
-  name: "Example Prompt Command",
-  group: "Example",
-  run: () => {},
-});
-
-Caido.commandPalette.register("example:show-toast");
-EvenBetterAPI.promptCommands.createPromptCommand("Example Prompt Command", "Toast message", (value) => {
-    EvenBetterAPI.toast.showToast({
-        message: value,
+  // Create a prompt command "Hello World"
+  evenBetterAPI.promptCommands.createPromptCommand(
+    "Hello World",
+    "What's your name?",
+    (name) => {
+      evenBetterAPI.toast.showToast({
+        message: `Hello, ${name}!`,
         type: "info",
-        duration: 3000,
-        position: "bottom",
-    });
-});
+      });
+    }
+  );
+};
 
-//EvenBetterAPI.hotReloading(); // Enable hot reloading
+let counter = 0;
+const createNavigationBar = (caido: Caido, evenBetterAPI: EvenBetterAPI) => {
+  const helloWorldButton = caido.ui.button({
+    label: "Click me!",
+    size: "small",
+    variant: "primary",
+  });
+
+  helloWorldButton.addEventListener("mousedown", () => {
+    counter++;
+    evenBetterAPI.toast.showToast({
+      message: `You clicked the button ${counter} times!`,
+      type: "info",
+    });
+  });
+
+  return evenBetterAPI.components.createNavigationBar({
+    title: "Example",
+    
+    items: [
+      {
+        sidebarItemName: "Example",
+        title: "Hello World",
+        url: "#/example",
+        onOpen: () => {},
+      },
+      {
+        sidebarItemName: "Example",
+        title: "Table",
+        url: "#/example/table",
+        onOpen: () => {},
+      },
+    ],
+    customButtons: [helloWorldButton],
+  });
+};
+
+const examplePage = (caido: Caido, evenBetterAPI: EvenBetterAPI) => {
+  const container = document.createElement("div") as HTMLDivElement;
+
+  const navigationBar = createNavigationBar(caido, evenBetterAPI);
+  container.appendChild(navigationBar);
+
+  const options: SettingsPageOptions = {
+    title: "EvenBetter: Sample Plugin",
+    description: "Configure EvenBetter: Sample Plugin settings.",
+    inputGroups: [
+      {
+        width: "50%",
+        groupName: "Extensions",
+        groupDescription: "Configure extensions settings.",
+        separateWithLine: true,
+        inputs: [
+          {
+            type: InputType.CHECKBOX,
+            labelAsHTML: true,
+            label:
+              "<b>Auto-update extensions:</b> Never miss an update - automatically update installed extensions when new versions are available.",
+            id: "auto-updates",
+          },
+          {
+            type: InputType.CHECKBOX,
+            labelAsHTML: true,
+            label:
+              "<b>Enable notifications:</b> Get notified about new extensions, updates and more.",
+            id: "notifications",
+          },
+        ],
+      },
+      {
+        width: "fill-space",
+        groupName: "EvenBetter: Sample Plugin",
+        groupDescription: "Configure settings for EvenBetter: Sample Plugin.",
+        separateWithLine: true,
+        inputs: [
+          {
+            type: InputType.CHECKBOX,
+            labelAsHTML: true,
+            label:
+              "<b>Show update notifications:</b> Get notified when new versions of EvenBetter: Sample Plugin are available.",
+            id: "show-update-notifications",
+          },
+          {
+            type: InputType.TEXT,
+            labelAsHTML: true,
+            label: "<b>URL to fetch extensions from:</b>",
+            id: "extensions-url",
+            defaultValue: "https://example.com",
+          },
+        ],
+      },
+    ],
+  };
+
+  const settingsPage = evenBetterAPI.templates.createSettingsPage(options);
+
+  container.appendChild(settingsPage.render());
+
+  caido.navigation.addPage("/example", {
+    body: container,
+  });
+
+  caido.sidebar.registerItem("Example", "/example", {
+    icon: "fas fa-code",
+    group: "Sample Plugin",
+  });
+};
+
+const tablePage = (caido: Caido, evenBetterAPI: EvenBetterAPI) => {
+  const container = document.createElement("div") as HTMLDivElement;
+
+  const navigationBar = createNavigationBar(caido, evenBetterAPI);
+  container.appendChild(navigationBar);
+
+  const table = evenBetterAPI.components.createTable({
+    columns: [{ name: "Key" }, { name: "Value" }],
+  });
+
+  table.addRow([
+    { columnName: "Key", value: "Hello" },
+    { columnName: "Value", value: "World" },
+  ]);
+
+  table.addRow([
+    { columnName: "Key", value: "Have a" },
+    { columnName: "Value", value: "great day" },
+  ]);
+
+  table.addRow([
+    { columnName: "Key", value: "Caido is" },
+    { columnName: "Value", value: "awesome!" },
+  ]);
+
+  container.appendChild(table.getHTMLElement());
+
+  caido.navigation.addPage("/example/table", {
+    body: container,
+  });
+};

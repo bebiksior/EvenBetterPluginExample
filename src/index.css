@@ -1,0 +1,4 @@
+.c-content[data-page="#/example"],
+.c-content[data-page="#/example/table"] {
+    background-color: var(--c-bg-subtle);
+}
